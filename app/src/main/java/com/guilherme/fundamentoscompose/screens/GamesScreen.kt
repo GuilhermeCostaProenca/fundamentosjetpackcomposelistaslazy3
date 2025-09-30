@@ -1,10 +1,28 @@
+@file:OptIn(ExperimentalMaterial3Api::class) // Necessário para componentes do Material 3
+
 package com.guilherme.fundamentoscompose.screens
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api // Importação explícita
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -13,19 +31,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.guilherme.fundamentoscompose.model.Game
-
+// Se GamesViewModel estiver em outro pacote, adicione a importação:
+// import com.guilherme.fundamentoscompose.viewmodel.GamesViewModel // Exemplo de caminho
 
 @Composable
 fun GamesScreen(vm: GamesViewModel = viewModel()) {
     val state by vm.uiState.collectAsState()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Fundamentos Compose - Listas & Filtro") }) }
+        topBar = {
+            TopAppBar(title = { Text("Fundamentos Compose - Listas & Filtro") })
+        }
     ) { innerPadding ->
         Column(
-            Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
+            modifier = Modifier
+                .padding(innerPadding) // Aplica o padding da Scaffold para a TopAppBar
+                .padding(16.dp)     // Seu padding customizado
+                .fillMaxSize()
         ) {
             // 1) Filtro por texto
             OutlinedTextField(
@@ -44,13 +66,11 @@ fun GamesScreen(vm: GamesViewModel = viewModel()) {
 
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(state.estudios) { est ->
-                    // Use AssistChip para compatibilidade total:
                     AssistChip(
                         onClick = { vm.onStudioClick(est) },
                         label = { Text(est) }
                     )
-
-                    // Se sua versão tiver FilterChip e quiser destacar o selecionado, troque por:
+                    // Alternativa com FilterChip se preferir e sua versão do Material 3 suportar bem:
                     // FilterChip(
                     //     selected = state.estudioSelecionado == est,
                     //     onClick = { vm.onStudioClick(est) },
@@ -61,8 +81,10 @@ fun GamesScreen(vm: GamesViewModel = viewModel()) {
 
             // 3) Botão “Limpar filtro” só quando houver filtro ativo
             if (state.filtroAtivo) {
-                Row(Modifier.fillMaxWidth()) {
-                    Spacer(Modifier.weight(1f))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End // Alinha o botão à direita
+                ) {
                     TextButton(onClick = vm::limparFiltro) {
                         Text("Limpar filtro")
                     }
@@ -75,7 +97,7 @@ fun GamesScreen(vm: GamesViewModel = viewModel()) {
             if (state.gamesFiltrados.isEmpty()) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxSize() // Para centralizar no espaço restante
                         .padding(top = 24.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -84,7 +106,7 @@ fun GamesScreen(vm: GamesViewModel = viewModel()) {
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize() // LazyColumn preenche o espaço restante
                 ) {
                     items(state.gamesFiltrados, key = { it.id }) { game ->
                         GameItem(game)
@@ -100,9 +122,15 @@ private fun GameItem(game: Game) {
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp)) {
             Text(text = game.titulo, style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(2.dp))
-            Text(text = "Estúdio: ${game.estudio}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Gênero: ${game.genero}", style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(4.dp)) // Aumentei um pouco o espaço para melhor leitura
+            Text(
+                text = "Estúdio: ${game.estudio}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Gênero: ${game.genero}",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
